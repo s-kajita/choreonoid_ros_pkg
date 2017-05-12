@@ -83,7 +83,6 @@ protected:
     virtual bool restore(const Archive& archive);
     void doPutProperties(PutPropertyFunction& putProperty);
 
-    BodyPtr simulationBody;
     double timeStep_;
 
     const Target* controllerTarget;
@@ -125,6 +124,7 @@ protected:
     virtual bool hook_of_start_at_after_creation_rosnode();
 
 private:
+    BodyPtr simulationBody;
     std::string pdc_parameter_filename_;
     std::vector<double> pgain;
     std::vector<double> dgain;

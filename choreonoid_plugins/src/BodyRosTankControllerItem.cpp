@@ -88,8 +88,8 @@ bool BodyRosTankControllerItem::start(Target* target)
   timeStep_        = target->worldTimeStep();
   controlTime_     = target->currentTime();
 
-  crawlerL = body()->link("CRAWLER_TRACK_L");
-  crawlerR = body()->link("CRAWLER_TRACK_R");
+  crawlerL = body()->link("TRACK_L");
+  crawlerR = body()->link("TRACK_R");
 
   std::string name = body()->name();
   std::replace(name.begin(), name.end(), '-', '_');
@@ -303,12 +303,12 @@ bool BodyRosTankControllerItem::control()
 {
   controlTime_ = controllerTarget->currentTime();
 
-  for (size_t i = 2; i < body()->numJoints(); i++) {
+  for (size_t i = 0; i < body()->numJoints(); i++) {
     pd_control(body()->joint(i), qref[i]);
   }
 
-  qref[2] +=  0.5 * cannon_ori * timeStep_;  // cannon orientation
-  qref[3] += -0.5 * cannon_ud  * timeStep_;  // cannon updown
+  qref[0] +=  0.5 * cannon_ori * timeStep_;  // cannon orientation
+  qref[1] += -0.5 * cannon_ud  * timeStep_;  // cannon updown
 
   crawlerL->dq() = 2.0*(lin_vel(0) - ang_vel(2));
   crawlerR->dq() = 2.0*(lin_vel(0) + ang_vel(2));

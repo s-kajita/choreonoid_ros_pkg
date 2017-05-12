@@ -8,10 +8,10 @@
 
 using namespace cnoid;
 
-class RosMinePlugin : public Plugin
+class RosTankPlugin : public Plugin
 {
 public:
-  RosMinePlugin() : Plugin("RosTank") { }
+  RosTankPlugin() : Plugin("RosTank") { }
   
   virtual bool initialize() {
     BodyRosTankControllerItem::initialize(this);
@@ -19,4 +19,4 @@ public:
   }
 };
 
-CNOID_IMPLEMENT_PLUGIN_ENTRY(RosMinePlugin);
+CNOID_IMPLEMENT_PLUGIN_ENTRY(RosTankPlugin);
