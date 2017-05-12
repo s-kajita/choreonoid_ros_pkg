@@ -1,7 +1,7 @@
 About
 -----
 
-This repository provides ROS support for Choreonoid
+This provides experimental repository of ROS support for Choreonoid 
 
 choreonoid\_ros\_pkg: Meta-package to build Choreonoid packages
 
@@ -26,7 +26,6 @@ Create catkin workspace
 $ mkdir -p ~/catkin_ws/src
 $ cd ~/catkin_ws
 $ catkin init
-$ catkin config --merge-devel --install
 ```
 
 Checkout choreonoid\_ros\_pkg
