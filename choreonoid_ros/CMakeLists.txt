@@ -61,4 +61,8 @@ else()
     FILES ${_cnoid_build_path}/src/BodyPlugin/AISTSimulatorItem.h
     DESTINATION ${_cnoid_include_path}/cnoid/src/BodyPlugin
   )
+  install(
+    FILES ${_cnoid_build_path}/src/Body/ExtraJoint.h
+    DESTINATION ${_cnoid_include_path}/cnoid/src/Body
+  )
 endif()
