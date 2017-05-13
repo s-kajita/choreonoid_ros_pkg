@@ -50,6 +50,7 @@ Run
 
 ```
 $ roslaunch choreonoid_ros choreonoid.launch
+$ roslaunch choreonoid_ros jvrc-1-rviz.launch 
 $ roslaunch choreonoid_ros ros-tank.launch
 ```
 
