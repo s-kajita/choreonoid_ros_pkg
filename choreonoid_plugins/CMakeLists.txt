@@ -75,6 +75,7 @@ link_directories(
 catkin_package(
   LIBRARIES
   CnoidRosBodyPlugin
+  CnoidRosTankPlugin
   INCLUDE_DIRS
   src
   CATKIN_DEPENDS
@@ -202,11 +203,19 @@ add_cnoid_plugin(CnoidRosBodyPlugin
   src/BodyRosTorqueControllerItem.cpp
   src/BodyRosHighgainControllerItem.cpp
 )
-
 target_link_libraries(CnoidRosBodyPlugin ${CNOID_LIBRARIES} CnoidBodyPlugin ${catkin_LIBRARIES})
+
+## Tank plugin
+add_cnoid_plugin(CnoidRosTankPlugin
+  SHARED
+  src/RosTankPlugin.cpp
+  src/BodyRosTankControllerItem.cpp
+)
+target_link_libraries(CnoidRosTankPlugin ${CNOID_LIBRARIES} CnoidBodyPlugin ${catkin_LIBRARIES})
 
 install(TARGETS 
   CnoidRosBodyPlugin
+  CnoidRosTankPlugin
   RUNTIME DESTINATION ${CNOID_PLUGIN_SUBDIR}
   LIBRARY DESTINATION ${CNOID_PLUGIN_SUBDIR}
   ARCHIVE DESTINATION ${CNOID_PLUGIN_SUBDIR}
