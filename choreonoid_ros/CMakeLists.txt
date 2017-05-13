@@ -57,12 +57,14 @@ if("${_cnoid_include_path}" STREQUAL "")
 elseif("${_cnoid_build_path}" STREQUAL "")
   message(WARNING "Chorenoid build directory not found")
 else()
-  install(
-    FILES ${_cnoid_build_path}/src/BodyPlugin/AISTSimulatorItem.h
-    DESTINATION ${_cnoid_include_path}/cnoid/src/BodyPlugin
+  configure_file(
+    ${_cnoid_build_path}/src/BodyPlugin/AISTSimulatorItem.h
+    ${_cnoid_include_path}/cnoid/src/BodyPlugin
+    COPYONLY
   )
-  install(
-    FILES ${_cnoid_build_path}/src/Body/ExtraJoint.h
-    DESTINATION ${_cnoid_include_path}/cnoid/src/Body
+  configure_file(
+    ${_cnoid_build_path}/src/Body/ExtraJoint.h
+    ${_cnoid_include_path}/cnoid/src/Body
+    COPYONLY
   )
 endif()

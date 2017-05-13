@@ -221,6 +221,18 @@ install(TARGETS
   ARCHIVE DESTINATION ${CNOID_PLUGIN_SUBDIR}
 )
 
+## Copy choreonoid-ros plugins to the right location
+configure_file(
+  ${CATKIN_DEVEL_PREFIX}/lib/libCnoidRosBodyPlugin.so
+  ${CNOID_PLUGIN_SUBDIR}
+  COPYONLY
+)
+configure_file(
+  ${CATKIN_DEVEL_PREFIX}/lib/libCnoidRosTankPlugin.so
+  ${CNOID_PLUGIN_SUBDIR}
+  COPYONLY
+)
+
 install(
   DIRECTORY src/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
