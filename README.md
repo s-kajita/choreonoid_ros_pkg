@@ -33,9 +33,7 @@ Checkout choreonoid\_ros\_pkg
 
 ```
 $ cd ~/catkin_ws/src
-$ wstool init
-$ wstool set choreonoid_ros_pkg https://github.com/s-kajita/choreonoid_ros_pkg.git --git -y
-$ wstool update choreonoid_ros_pkg
+$ git clone -b kajita-exp https://github.com/s-kajita/choreonoid_ros_pkg.git
 ```
 
 Build
