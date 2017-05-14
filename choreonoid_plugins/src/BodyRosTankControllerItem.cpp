@@ -99,10 +99,12 @@ bool BodyRosTankControllerItem::start(Target* target)
   }
 
   rosnode_ = boost::shared_ptr<ros::NodeHandle>(new ros::NodeHandle(name));
-  cmd_subscriber_ = rosnode_->subscribe("track_speed", 1, 
+  cmd_track_speed = rosnode_->subscribe("track_speed", 1, 
 					&BodyRosTankControllerItem::receive_message, this);
-  cmd_cannon = rosnode_->subscribe("cannon", 1, 
-					&BodyRosTankControllerItem::cannon_msg, this);
+  cmd_cannon_pitch = rosnode_->subscribe("cannon_pitch", 1, 
+					&BodyRosTankControllerItem::receive_cannon_pitch, this);
+  cmd_cannon_yaw = rosnode_->subscribe("cannon_yaw", 1, 
+					&BodyRosTankControllerItem::receive_cannon_yaw, this);
 
   if (hook_of_start_at_after_creation_rosnode() == false) {
     return false;
@@ -127,8 +129,8 @@ bool BodyRosTankControllerItem::hook_of_start()
   lin_vel << 0, 0, 0;
   ang_vel << 0, 0, 0;
 
-  cannon_ori = 0.0;
-  cannon_ud  = 0.0;
+  cannon_pitch = 0.0;
+  cannon_yaw   = 0.0;
 
   qref.resize(body()->numJoints());
   q_old_.resize(body()->numJoints());
@@ -286,30 +288,41 @@ void BodyRosTankControllerItem::receive_message(const geometry_msgs::Twist &twis
   return;
 }
 
-void BodyRosTankControllerItem::cannon_msg(const geometry_msgs::Twist &twist)
+void BodyRosTankControllerItem::receive_cannon_pitch(const std_msgs::Float32 &pitch)
 {
   std::ostringstream os;
-  os << "(cannon) twist.linear.x= " << twist.linear.x << ", angular.z= " << twist.angular.z;
+  os << "(cannon) pitch= " << pitch.data;
   MessageView::instance()->putln(os.str());
 
-  cannon_ud  = twist.linear.x;
-  cannon_ori = twist.angular.z;
+  cannon_pitch = (double)pitch.data;
 
   return;
 }
 
+void BodyRosTankControllerItem::receive_cannon_yaw(const std_msgs::Float32 &yaw)
+{
+  std::ostringstream os;
+  os << "(cannon) yaw= " << yaw.data;
+  MessageView::instance()->putln(os.str());
+
+  cannon_yaw = (double)yaw.data;
+
+  return;
+}
 
 bool BodyRosTankControllerItem::control()
 {
   controlTime_ = controllerTarget->currentTime();
 
+  /* control cannon */
+  qref[2] = -cannon_yaw;
+  qref[3] = cannon_pitch;
+
   for (size_t i = 2; i < body()->numJoints(); i++) {
     pd_control(body()->joint(i), qref[i]);
   }
 
-  qref[2] +=  0.5 * cannon_ori * timeStep_;  // cannon orientation
-  qref[3] += -0.5 * cannon_ud  * timeStep_;  // cannon updown
-
+  /* control crawler */
   crawlerL->dq() = 2.0*(lin_vel(0) - ang_vel(2));
   crawlerR->dq() = 2.0*(lin_vel(0) + ang_vel(2));
 
@@ -319,9 +332,6 @@ bool BodyRosTankControllerItem::control()
 
   lin_vel(0) = DecayRate*lin_vel(0);
   ang_vel(2) = DecayRate*ang_vel(2);
-
-  cannon_ori = DecayRate*cannon_ori;
-  cannon_ud  = DecayRate*cannon_ud;
 
   return true;
 }
