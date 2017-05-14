@@ -158,6 +158,9 @@ bool BodyRosTankControllerItem::hook_of_start_at_after_creation_rosnode()
   ROS_DEBUG("%s: Called", __PRETTY_FUNCTION__);
 #endif  /* DEBUG_ROS_TANK_CONTROLLER */
 
+  light->on(false);   // turn off the light at start
+  light->notifyStateChange();
+
   return true;
 }
 
