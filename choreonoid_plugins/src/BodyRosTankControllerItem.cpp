@@ -116,9 +116,9 @@ bool BodyRosTankControllerItem::start(Target* target)
 
 bool BodyRosTankControllerItem::hook_of_start()
 {
-#if (DEBUG_ROS_MY_CONTROLLER > 0)
+#if (DEBUG_ROS_TANK_CONTROLLER > 0)
   ROS_DEBUG("%s: Called.", __PRETTY_FUNCTION__);
-#endif  /* DEBUG_ROS_MY_CONTROLLER */
+#endif  /* DEBUG_ROS_TANK_CONTROLLER */
 
   if (! load_pdc_parameters()) {
     return false;
@@ -144,9 +144,9 @@ bool BodyRosTankControllerItem::hook_of_start()
 
 bool BodyRosTankControllerItem::hook_of_start_at_after_creation_rosnode()
 {
-#if (DEBUG_ROS_MY_CONTROLLER > 0)
+#if (DEBUG_ROS_TANK_CONTROLLER > 0)
   ROS_DEBUG("%s: Called", __PRETTY_FUNCTION__);
-#endif  /* DEBUG_ROS_MY_CONTROLLER */
+#endif  /* DEBUG_ROS_TANK_CONTROLLER */
 
   return true;
 }
@@ -380,7 +380,7 @@ void BodyRosTankControllerItem::pd_control(Link* joint, double q_ref)
       u = u_upper[i];
     }
 
-#if (DEBUG_ROS_MY_CONTROLLER > 0)
+#if (DEBUG_ROS_TANK_CONTROLLER > 0)
     ROS_DEBUG("-- joint id %03d (%s) --", joint->jointId(), joint->name().c_str());
     ROS_DEBUG("time step %f", timeStep_);
     ROS_DEBUG("dq_lower %f dq_upper %f", joint->dq_lower(), joint->dq_upper());
@@ -388,7 +388,7 @@ void BodyRosTankControllerItem::pd_control(Link* joint, double q_ref)
     ROS_DEBUG("qref %f q_old_ %f", qref[i], q_old_[i]);
     ROS_DEBUG("q_ref %f q %f dq_ref %f dq %f u %f", q_ref, q, dq_ref, dq, u);
     ROS_DEBUG("--");
-#endif  /* DEBUG_ROS_MY_CONTROLLER */
+#endif  /* DEBUG_ROS_TANK_CONTROLLER */
 
     joint->u() = u;
     //qref_old_[i] = q_ref;
