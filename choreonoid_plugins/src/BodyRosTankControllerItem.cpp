@@ -91,6 +91,12 @@ bool BodyRosTankControllerItem::start(Target* target)
   crawlerL = body()->link("CRAWLER_TRACK_L");
   crawlerR = body()->link("CRAWLER_TRACK_R");
 
+  light = body()->findDevice<SpotLight>("MainLight");
+  if(!light){
+    MessageView::instance()->putln(MessageView::ERROR, boost::format("MainLight was not found"));
+    return false;
+  }
+
   std::string name = body()->name();
   std::replace(name.begin(), name.end(), '-', '_');
 
@@ -105,6 +111,8 @@ bool BodyRosTankControllerItem::start(Target* target)
 					&BodyRosTankControllerItem::receive_cannon_pitch, this);
   cmd_cannon_yaw = rosnode_->subscribe("cannon_yaw", 1, 
 					&BodyRosTankControllerItem::receive_cannon_yaw, this);
+  cmd_light_onoff = rosnode_->subscribe("light_onoff", 1, 
+					&BodyRosTankControllerItem::receive_light_onoff, this);
 
   if (hook_of_start_at_after_creation_rosnode() == false) {
     return false;
@@ -306,6 +314,18 @@ void BodyRosTankControllerItem::receive_cannon_yaw(const std_msgs::Float32 &yaw)
   MessageView::instance()->putln(os.str());
 
   cannon_yaw = (double)yaw.data;
+
+  return;
+}
+
+void BodyRosTankControllerItem::receive_light_onoff(const std_msgs::Bool &onoff)
+{
+  std::ostringstream os;
+  os << "(cannon) light_onoff= " << onoff.data;
+  MessageView::instance()->putln(os.str());
+
+  light->on(onoff.data);
+  light->notifyStateChange();
 
   return;
 }
