@@ -35,17 +35,18 @@ install(
   USE_SOURCE_PERMISSIONS
 )
 
+#
+# Following codes are to handle a build error of the Choreonoid ROS plugin
+# caused by a lack of the header file which should be installed into the devel/ directory.
+#  If you have a build error caused by a missing include file, uncomment the
+# configure_file() and specify the missing file name.
+#
 execute_process(
   COMMAND find ${CATKIN_DEVEL_PREFIX}/include -name "choreonoid-*"
   OUTPUT_VARIABLE _cnoid_include_path
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-#
-# Although it is not installed by the standard installation process of Chorenoid,
-# it is a header file necessary for the build of the Choreonoid ROS plugin,
-# so the following correspondence is made.
-#
 execute_process(
   COMMAND find ${CATKIN_DEVEL_PREFIX}/../build -name "choreonoid-master"
   OUTPUT_VARIABLE _cnoid_build_path
@@ -57,14 +58,9 @@ if("${_cnoid_include_path}" STREQUAL "")
 elseif("${_cnoid_build_path}" STREQUAL "")
   message(WARNING "Chorenoid build directory not found")
 else()
-  configure_file(
-    ${_cnoid_build_path}/src/BodyPlugin/AISTSimulatorItem.h
-    ${_cnoid_include_path}/cnoid/src/BodyPlugin
-    COPYONLY
-  )
-  configure_file(
-    ${_cnoid_build_path}/src/Body/ExtraJoint.h
-    ${_cnoid_include_path}/cnoid/src/Body
-    COPYONLY
-  )
+#  configure_file(
+#    ${_cnoid_build_path}/src/Body/ExtraJoint.h
+#    ${_cnoid_include_path}/cnoid/src/Body
+#    COPYONLY
+#  )
 endif()
