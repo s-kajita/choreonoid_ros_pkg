@@ -33,7 +33,7 @@ Checkout choreonoid\_ros\_pkg
 
 ```
 $ cd ~/catkin_ws/src
-$ git clone -b kajita-exp https://github.com/s-kajita/choreonoid_ros_pkg.git
+$ git clone -b exp https://github.com/s-kajita/choreonoid_ros_pkg.git
 ```
 
 Build
