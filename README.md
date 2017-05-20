@@ -20,6 +20,26 @@ Make sure you have installed wstool and catkin
 $ sudo apt-get install python-rosinstall python-catkin-tools
 ```
 
+Initialize and update the ROS package database 
+
+```
+$ sudo rosdep init
+$ rosdep update
+```
+
+Install simtrans
+
+```
+$ sudo add-apt-repository ppa:hrg/daily
+$ sudo apt-get update
+$ sudo apt-get install python-pip openhrp meshlab imagemagick python-omniorb openrtm-aist-python
+$ git clone https://github.com/fkanehiro/simtrans.git
+$ cd simtrans
+$ sudo pip install -r requirements.txt
+$ sudo pip install enum34
+$ sudo python setup.py install
+```
+
 Create catkin workspace
 
 ```
@@ -58,3 +78,5 @@ Note
 -----
 
 For further details, please visit https://fkanehiro.github.io/choreonoid_ros_pkg_doc
+
+SlideShare https://www.slideshare.net/shuujikajita/choreonoidros
