@@ -236,7 +236,7 @@ void BodyRosTorqueControllerItem::pd_control(Link* joint, double q_ref)
   i = joint->jointId();
   q = joint->q();
 
-  if (isnan(q_ref)) {
+  if (std::isnan(q_ref)) {
     ROS_ERROR("joint id %03d (%s): joint angle setting is NaN", joint->jointId(), joint->name().c_str());
     goto done;
   } else if (q_ref < joint->q_lower() || q_ref > joint->q_upper()) {
@@ -247,21 +247,21 @@ void BodyRosTorqueControllerItem::pd_control(Link* joint, double q_ref)
 
   dq_ref = (q_ref - qref_old_[i]) / timeStep_;
 
-  if (isnan(dq_ref)) {
+  if (std::isnan(dq_ref)) {
     ROS_ERROR("joint id %03d (%s): calculate dq_ref, result is NaN", joint->jointId(), joint->name().c_str());
     goto done;
   }
 
   dq = (q - q_old_[i]) / timeStep_;
 
-  if (isnan(dq)) {
+  if (std::isnan(dq)) {
     ROS_ERROR("joint id %03d (%s): calculate dq, result is NaN", joint->jointId(), joint->name().c_str());
     goto done;
   }
 
   u = (q_ref - q) * pgain[i] + (dq_ref - dq) * dgain[i];
 
-  if (! isnan(u)) {
+  if (! std::isnan(u)) {
     if (u < u_lower[i]) {
       ROS_DEBUG("joint id %03d (%s): calculate u, result is over lower limt. (adjust %f -> %f)",
                 joint->jointId(), joint->name().c_str(), u, u_lower[i]);
@@ -317,7 +317,7 @@ void BodyRosTorqueControllerItem::apply_message(Link* joint, size_t idx, traject
   } else {
     u = point->effort[idx];
 
-    if (! isnan(u)) {
+    if (! std::isnan(u)) {
       joint->u() = u;
     } else {
       ROS_ERROR("Effort setting is NaN (%s)", joint->name().c_str());

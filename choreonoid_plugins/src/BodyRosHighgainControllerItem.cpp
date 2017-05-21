@@ -92,7 +92,7 @@ void BodyRosHighgainControllerItem::calculate_hg_parameter(
 
   i = joint->jointId();
 
-  if (isnan(qref)) {
+  if (std::isnan(qref)) {
     ROS_ERROR("joint id %03d (%s): joint angle setting is NaN", i, joint->name().c_str());
     return;
   } else if (qref < joint->q_lower() || qref > joint->q_upper()) {
@@ -107,7 +107,7 @@ void BodyRosHighgainControllerItem::calculate_hg_parameter(
     dq = (qref - joint->q()) / timeStep_;
   }
 
-  if (isnan(dq)) {
+  if (std::isnan(dq)) {
     ROS_ERROR("joint id %03d (%s): calculate joint velocity, result is NaN", i, joint->name().c_str());
     return;
   }
@@ -118,7 +118,7 @@ void BodyRosHighgainControllerItem::calculate_hg_parameter(
     ddq = dq / timeStep_;
   }
 
-  if (isnan(ddq)) {
+  if (std::isnan(ddq)) {
     ROS_ERROR("joint id %03d (%s): calculate joint acceleration, result is NaN", i, joint->name().c_str());
     return;
   }
