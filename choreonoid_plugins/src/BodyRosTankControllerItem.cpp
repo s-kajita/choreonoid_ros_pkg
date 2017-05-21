@@ -88,8 +88,14 @@ bool BodyRosTankControllerItem::start(Target* target)
   timeStep_        = target->worldTimeStep();
   controlTime_     = target->currentTime();
 
-  crawlerL = body()->link("TRACK_L");
-  crawlerR = body()->link("TRACK_R");
+  crawlerL = body()->link("CRAWLER_TRACK_L");
+  crawlerR = body()->link("CRAWLER_TRACK_R");
+
+  light = body()->findDevice<SpotLight>("MainLight");
+  if(!light){
+    MessageView::instance()->putln(MessageView::ERROR, boost::format("MainLight was not found"));
+    return false;
+  }
 
   std::string name = body()->name();
   std::replace(name.begin(), name.end(), '-', '_');
@@ -99,10 +105,14 @@ bool BodyRosTankControllerItem::start(Target* target)
   }
 
   rosnode_ = boost::shared_ptr<ros::NodeHandle>(new ros::NodeHandle(name));
-  cmd_subscriber_ = rosnode_->subscribe("track_speed", 1, 
+  cmd_track_speed = rosnode_->subscribe("track_speed", 1, 
 					&BodyRosTankControllerItem::receive_message, this);
-  cmd_cannon = rosnode_->subscribe("cannon", 1, 
-					&BodyRosTankControllerItem::cannon_msg, this);
+  cmd_cannon_pitch = rosnode_->subscribe("cannon_pitch", 1, 
+					&BodyRosTankControllerItem::receive_cannon_pitch, this);
+  cmd_cannon_yaw = rosnode_->subscribe("cannon_yaw", 1, 
+					&BodyRosTankControllerItem::receive_cannon_yaw, this);
+  cmd_light_onoff = rosnode_->subscribe("light_onoff", 1, 
+					&BodyRosTankControllerItem::receive_light_onoff, this);
 
   if (hook_of_start_at_after_creation_rosnode() == false) {
     return false;
@@ -116,9 +126,9 @@ bool BodyRosTankControllerItem::start(Target* target)
 
 bool BodyRosTankControllerItem::hook_of_start()
 {
-#if (DEBUG_ROS_MY_CONTROLLER > 0)
+#if (DEBUG_ROS_TANK_CONTROLLER > 0)
   ROS_DEBUG("%s: Called.", __PRETTY_FUNCTION__);
-#endif  /* DEBUG_ROS_MY_CONTROLLER */
+#endif  /* DEBUG_ROS_TANK_CONTROLLER */
 
   if (! load_pdc_parameters()) {
     return false;
@@ -127,8 +137,8 @@ bool BodyRosTankControllerItem::hook_of_start()
   lin_vel << 0, 0, 0;
   ang_vel << 0, 0, 0;
 
-  cannon_ori = 0.0;
-  cannon_ud  = 0.0;
+  cannon_pitch = 0.0;
+  cannon_yaw   = 0.0;
 
   qref.resize(body()->numJoints());
   q_old_.resize(body()->numJoints());
@@ -144,9 +154,12 @@ bool BodyRosTankControllerItem::hook_of_start()
 
 bool BodyRosTankControllerItem::hook_of_start_at_after_creation_rosnode()
 {
-#if (DEBUG_ROS_MY_CONTROLLER > 0)
+#if (DEBUG_ROS_TANK_CONTROLLER > 0)
   ROS_DEBUG("%s: Called", __PRETTY_FUNCTION__);
-#endif  /* DEBUG_ROS_MY_CONTROLLER */
+#endif  /* DEBUG_ROS_TANK_CONTROLLER */
+
+  light->on(false);   // turn off the light at start
+  light->notifyStateChange();
 
   return true;
 }
@@ -286,30 +299,53 @@ void BodyRosTankControllerItem::receive_message(const geometry_msgs::Twist &twis
   return;
 }
 
-void BodyRosTankControllerItem::cannon_msg(const geometry_msgs::Twist &twist)
+void BodyRosTankControllerItem::receive_cannon_pitch(const std_msgs::Float32 &pitch)
 {
   std::ostringstream os;
-  os << "(cannon) twist.linear.x= " << twist.linear.x << ", angular.z= " << twist.angular.z;
+  os << "(cannon) pitch= " << pitch.data;
   MessageView::instance()->putln(os.str());
 
-  cannon_ud  = twist.linear.x;
-  cannon_ori = twist.angular.z;
+  cannon_pitch = (double)pitch.data;
 
   return;
 }
 
+void BodyRosTankControllerItem::receive_cannon_yaw(const std_msgs::Float32 &yaw)
+{
+  std::ostringstream os;
+  os << "(cannon) yaw= " << yaw.data;
+  MessageView::instance()->putln(os.str());
+
+  cannon_yaw = (double)yaw.data;
+
+  return;
+}
+
+void BodyRosTankControllerItem::receive_light_onoff(const std_msgs::Bool &onoff)
+{
+  std::ostringstream os;
+  os << "(cannon) light_onoff= " << onoff.data;
+  MessageView::instance()->putln(os.str());
+
+  light->on(onoff.data);
+  light->notifyStateChange();
+
+  return;
+}
 
 bool BodyRosTankControllerItem::control()
 {
   controlTime_ = controllerTarget->currentTime();
 
-  for (size_t i = 0; i < body()->numJoints(); i++) {
+  /* control cannon */
+  qref[2] = -cannon_yaw;
+  qref[3] = cannon_pitch;
+
+  for (size_t i = 2; i < body()->numJoints(); i++) {
     pd_control(body()->joint(i), qref[i]);
   }
 
-  qref[0] +=  0.5 * cannon_ori * timeStep_;  // cannon orientation
-  qref[1] += -0.5 * cannon_ud  * timeStep_;  // cannon updown
-
+  /* control crawler */
   crawlerL->dq() = 2.0*(lin_vel(0) - ang_vel(2));
   crawlerR->dq() = 2.0*(lin_vel(0) + ang_vel(2));
 
@@ -319,9 +355,6 @@ bool BodyRosTankControllerItem::control()
 
   lin_vel(0) = DecayRate*lin_vel(0);
   ang_vel(2) = DecayRate*ang_vel(2);
-
-  cannon_ori = DecayRate*cannon_ori;
-  cannon_ud  = DecayRate*cannon_ud;
 
   return true;
 }
@@ -380,7 +413,7 @@ void BodyRosTankControllerItem::pd_control(Link* joint, double q_ref)
       u = u_upper[i];
     }
 
-#if (DEBUG_ROS_MY_CONTROLLER > 0)
+#if (DEBUG_ROS_TANK_CONTROLLER > 0)
     ROS_DEBUG("-- joint id %03d (%s) --", joint->jointId(), joint->name().c_str());
     ROS_DEBUG("time step %f", timeStep_);
     ROS_DEBUG("dq_lower %f dq_upper %f", joint->dq_lower(), joint->dq_upper());
@@ -388,7 +421,7 @@ void BodyRosTankControllerItem::pd_control(Link* joint, double q_ref)
     ROS_DEBUG("qref %f q_old_ %f", qref[i], q_old_[i]);
     ROS_DEBUG("q_ref %f q %f dq_ref %f dq %f u %f", q_ref, q, dq_ref, dq, u);
     ROS_DEBUG("--");
-#endif  /* DEBUG_ROS_MY_CONTROLLER */
+#endif  /* DEBUG_ROS_TANK_CONTROLLER */
 
     joint->u() = u;
     //qref_old_[i] = q_ref;

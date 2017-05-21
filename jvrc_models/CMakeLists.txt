@@ -25,7 +25,7 @@ add_custom_target(
 add_custom_command(
   OUTPUT ${CATKIN_PACKAGE_SHARE_DESTINATION}/urdf/JVRC-1/jvrc-1.urdf
   COMMAND mkdir -p ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/urdf/JVRC-1
-  COMMAND simtrans -i main.wrl --prefix package://jvrc_models/urdf/JVRC-1/ -o ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/urdf/JVRC-1/jvrc-1.urdf
+  COMMAND simtrans -i main.wrl --prefix file://${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/urdf/JVRC-1/ -o ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/urdf/JVRC-1/jvrc-1.urdf
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/model/JVRC-1
   VERBATIM
 )

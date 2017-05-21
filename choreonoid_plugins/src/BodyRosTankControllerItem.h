@@ -18,6 +18,8 @@
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Float32.h>
+#include <std_msgs/Bool.h>
 
 #include <vector>
 
@@ -25,6 +27,7 @@
 
 #include <cnoid/YAMLReader>
 #include <cnoid/FileUtil>
+#include <cnoid/SpotLight>
 
 namespace cnoid {
 
@@ -61,7 +64,9 @@ public:
       @param[in] msg twist message.
      */
     void receive_message(const geometry_msgs::Twist &twist);
-    void cannon_msg(const geometry_msgs::Twist &twist);
+    void receive_cannon_pitch(const std_msgs::Float32 &pitch);
+    void receive_cannon_yaw(const std_msgs::Float32 &yaw);
+    void receive_light_onoff(const std_msgs::Bool &onoff);
 
     virtual double timeStep() const {
       return timeStep_;
@@ -97,14 +102,18 @@ protected:
     Vector3 lin_vel;
     Vector3 ang_vel;
 
-    double cannon_ori;
-    double cannon_ud;
+    double cannon_pitch;
+    double cannon_yaw;
+
+    SpotLight* light;
 
     boost::shared_ptr<ros::NodeHandle> rosnode_;
     boost::shared_ptr<ros::AsyncSpinner> async_ros_spin_;
 
-    ros::Subscriber cmd_subscriber_;
-    ros::Subscriber cmd_cannon;
+    ros::Subscriber cmd_track_speed;
+    ros::Subscriber cmd_cannon_pitch;
+    ros::Subscriber cmd_cannon_yaw;
+    ros::Subscriber cmd_light_onoff;
 
     /*
       @brief Hook of simulation start.
