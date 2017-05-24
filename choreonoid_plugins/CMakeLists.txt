@@ -76,6 +76,7 @@ catkin_package(
   LIBRARIES
   CnoidRosBodyPlugin
   CnoidRosTankPlugin
+  CnoidRosCannonballPlugin
   INCLUDE_DIRS
   src
   CATKIN_DEPENDS
@@ -213,9 +214,18 @@ add_cnoid_plugin(CnoidRosTankPlugin
 )
 target_link_libraries(CnoidRosTankPlugin ${CNOID_LIBRARIES} CnoidBodyPlugin ${catkin_LIBRARIES})
 
+## Cannonball plugin
+add_cnoid_plugin(CnoidRosCannonballPlugin
+  SHARED
+  src/RosCannonballPlugin.cpp
+)
+target_link_libraries(CnoidRosCannonballPlugin ${CNOID_LIBRARIES} CnoidBodyPlugin ${catkin_LIBRARIES})
+
+
 install(TARGETS 
   CnoidRosBodyPlugin
   CnoidRosTankPlugin
+  CnoidRosCannonballPlugin
   RUNTIME DESTINATION ${CNOID_PLUGIN_SUBDIR}
   LIBRARY DESTINATION ${CNOID_PLUGIN_SUBDIR}
   ARCHIVE DESTINATION ${CNOID_PLUGIN_SUBDIR}
