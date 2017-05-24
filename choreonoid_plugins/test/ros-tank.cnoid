@@ -25,6 +25,7 @@ items:
             timeLength: 60
             allLinkPositionOutputMode: false
             deviceStateOutput: true
+            selfCollision: false
             controllerThreads: true
             recordCollisionData: false
             controllerOptions: ""
@@ -80,18 +81,18 @@ items:
           data: 
             modelFile: "../../../../src/choreonoid_ros_pkg/choreonoid_ros/model/tank.wrl"
             currentBaseLink: "CHASSIS"
-            rootPosition: [ -0.869555466, -0.110108618, 0.0999414436 ]
+            rootPosition: [ 0.000558980054, -7.87855841e-05, 0.100000229 ]
             rootAttitude: [ 
-              -0.963494446, -0.267728217, 0.000232579897, 
-              0.267728209, -0.963494474, -6.5658476e-05, 
-              0.000241668072, -9.93377837e-07, 0.999999971 ]
-            jointPositions: [ -13.077189,  11.743828,  0.000000,  0.000131 ]
-            initialRootPosition: [ 0, 0, 0.1 ]
+              0.999999129, -0.00131973759, 8.89485178e-06, 
+              0.00131973759, 0.999999129, -4.98260874e-08, 
+              -8.89477827e-06, 6.15649142e-08, 1 ]
+            jointPositions: [  0.000000,  0.000000,  0.000083,  0.001002 ]
+            initialRootPosition: [ 0.00080046735, 0.000121544692, 0.106626353 ]
             initialRootAttitude: [ 
-              1, 0, 0, 
-              0, 1, 0, 
-              0, 0, 1 ]
-            initialJointPositions: [  0.000000,  0.000000,  0.000000,  0.000000 ]
+              0.999999768, -0.000581128234, -0.000354793676, 
+              0.000582137315, 0.999995767, 0.00285068699, 
+              0.000353135559, -0.00285089286, 0.999995874 ]
+            initialJointPositions: [  0.000000,  0.000000, -0.000871,  0.001287 ]
             zmp: [ 0, 0, 0 ]
             collisionDetection: true
             selfCollisionDetection: false
@@ -113,11 +114,40 @@ items:
                 pdcParameterFilename: "${PROJECT_DIR}/tank-pdc-parameters.yml"
         - 
           id: 8
+          name: "Cannonball1"
+          plugin: Body
+          class: BodyItem
+          data: 
+            modelFile: "../../../../src/choreonoid_ros_pkg/choreonoid_ros/model/cannonball.wrl"
+            currentBaseLink: "BASE"
+            rootPosition: [ 0.499984357, 1.08690447e-05, 0.0485380722 ]
+            rootAttitude: [ 
+              0.99999982, -1.40160482e-05, -0.00060063061, 
+              1.40515326e-05, 0.999999998, 5.9074304e-05, 
+              0.00060062978, -5.90827331e-05, 0.999999818 ]
+            jointPositions: [  ]
+            initialRootPosition: [ 0.5, 0, 1 ]
+            initialRootAttitude: [ 
+              0.999999969, 4.6175949e-07, -0.000247636146, 
+              -5.05582273e-07, 0.999999984, -0.00017696437, 
+              0.00024763606, 0.000176964489, 0.999999954 ]
+            zmp: [ 0, 0, 0 ]
+            collisionDetection: true
+            selfCollisionDetection: false
+            isEditable: true
+          children: 
+            - 
+              id: 9
+              name: "BodyCannonballController"
+              plugin: RosCannonball
+              class: BodyCannonballControllerItem
+        - 
+          id: 10
           name: "Labo1"
           plugin: Body
           class: BodyItem
           data: 
-            modelFile: "../../../../devel/share/choreonoid-1.6/model/Labo1/Labo1.body"
+            modelFile: "${SHARE}/model/Labo1/Labo1.body"
             currentBaseLink: "Base"
             rootPosition: [ 0, 0, 0 ]
             rootAttitude: [ 
@@ -151,9 +181,9 @@ views:
     class: ItemTreeView
     mounted: true
     state: 
-      selected: [ 2 ]
-      checked: [ 1, 2, 4, 5, 8 ]
-      expanded: [ 1, 2, 5 ]
+      selected: [ 1, 2 ]
+      checked: [ 1, 2, 4, 5, 8, 10 ]
+      expanded: [ 1, 2, 5, 8, 9 ]
   - 
     id: 3
     plugin: Base
@@ -176,7 +206,6 @@ views:
       worldLightIntensity: 0.5
       worldLightAmbient: 0.3
       additionalLights: true
-      shadowLights: 
       fog: true
       floorGrid: false
       floorGridSpan: 10
@@ -196,6 +225,7 @@ views:
       showFPS: false
       enableNewDisplayListDoubleRendering: false
       useBufferForPicking: true
+      upsideDown: false
       cameras: 
         - 
           camera: [ System, Perspective ]
@@ -203,9 +233,9 @@ views:
           fieldOfView: 0.6978
           near: 0.01
           far: 10000
-          eye: [ -4.86371894, -1.98046727, 3.40743553 ]
-          direction: [ 0.806773444, 0.355686841, -0.471808735 ]
-          up: [ 0.431714142, 0.190332293, 0.881700923 ]
+          eye: [ -2.24276594, -3.05483937, 3.17419016 ]
+          direction: [ 0.468817019, 0.691845471, -0.549145197 ]
+          up: [ 0.308053498, 0.454602562, 0.835726961 ]
         - 
           camera: [ System, Orthographic ]
           orthoHeight: 20
@@ -236,6 +266,7 @@ views:
       spinBox: true
       slider: true
       labelOnLeft: true
+      currentBodyItem: 8
   - 
     id: 7
     plugin: Body
@@ -243,6 +274,7 @@ views:
     mounted: true
     state: 
       listingMode: "Link List"
+      currentBodyItem: 8
       bodyItems: 
         - 
           id: 5
@@ -259,7 +291,7 @@ toolbars:
     frameRate: 1000
     playbackFrameRate: 100
     idleLoopDrivenMode: false
-    currentTime: 131.636
+    currentTime: 1.869
     speedScale: 1
     syncToOngoingUpdates: false
     autoExpansion: true
@@ -271,6 +303,8 @@ toolbars:
     snapDistance: 0.025
     penetrationBlockDepth: 0.0005
     lazyCollisionDetectionMode: true
+  "BodyBar": 
+    current: 8
   "LeggedBodyBar": 
     stanceWidth: 0.15
   "BodyMotionGenerationBar": 
@@ -321,6 +355,11 @@ Body:
         showCenterOfMass: false
         showPpcom: false
         showZmp: false
+      - 
+        bodyItem: 10
+        showCenterOfMass: false
+        showPpcom: false
+        showZmp: false
     staticModelEditing: false
   "KinematicFaultChecker": 
     checkJointPositions: true
@@ -338,12 +377,12 @@ viewAreas:
     contents: 
       type: splitter
       orientation: horizontal
-      sizes: [ 247, 932 ]
+      sizes: [ 228, 956 ]
       children: 
         - 
           type: splitter
           orientation: vertical
-          sizes: [ 390, 388 ]
+          sizes: [ 392, 389 ]
           children: 
             - 
               type: pane
@@ -356,12 +395,12 @@ viewAreas:
         - 
           type: splitter
           orientation: vertical
-          sizes: [ 602, 176 ]
+          sizes: [ 604, 177 ]
           children: 
             - 
               type: splitter
               orientation: horizontal
-              sizes: [ 0, 926 ]
+              sizes: [ 354, 596 ]
               children: 
                 - 
                   type: pane
