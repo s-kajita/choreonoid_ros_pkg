@@ -88,15 +88,18 @@ bool BodyRosTankControllerItem::start(Target* target)
   timeStep_        = target->worldTimeStep();
   controlTime_     = target->currentTime();
 
-  crawlerL = body()->link("CRAWLER_TRACK_L");
-  crawlerR = body()->link("CRAWLER_TRACK_R");
+  crawlerL = body()->link("TRACK_L");
+  crawlerR = body()->link("TRACK_R");
 
-  light = body()->findDevice<SpotLight>("MainLight");
+  light = body()->findDevice<SpotLight>("Light");
   if(!light){
-    MessageView::instance()->putln(MessageView::ERROR, boost::format("MainLight was not found"));
+    MessageView::instance()->putln(MessageView::ERROR, boost::format("Light was not found"));
     return false;
   }
-
+  else {
+    MessageView::instance()->putln(MessageView::ERROR, boost::format("Found Light"));
+  }
+  
   std::string name = body()->name();
   std::replace(name.begin(), name.end(), '-', '_');
 
@@ -130,10 +133,31 @@ bool BodyRosTankControllerItem::hook_of_start()
   ROS_DEBUG("%s: Called.", __PRETTY_FUNCTION__);
 #endif  /* DEBUG_ROS_TANK_CONTROLLER */
 
+  double jsize = body()->numJoints();
+  
+  pgain.resize(jsize);
+  dgain.resize(jsize);
+  u_lower.resize(jsize);
+  u_upper.resize(jsize);
+
+  for(int j=0; j < jsize; j++){
+    pgain[j] = 0;
+    dgain[j] = 0;
+    u_lower[j] = 0;
+    u_upper[j] = 0;
+  }
+
+  pgain[0] = pgain[1] = 30000.0;
+  dgain[0] = dgain[1] = 5000.0;
+  u_lower[0] = u_lower[1] = -50.0;
+  u_upper[0] = u_upper[1] =  50.0;
+  
+#if 0
   if (! load_pdc_parameters()) {
     return false;
   }
-
+#endif
+  
   lin_vel << 0, 0, 0;
   ang_vel << 0, 0, 0;
 
@@ -164,128 +188,6 @@ bool BodyRosTankControllerItem::hook_of_start_at_after_creation_rosnode()
   return true;
 }
 
-bool BodyRosTankControllerItem::set_pdc_parameters(Listing* src, std::vector<double>& dst)
-{
-  if (! src) {
-    return false;
-  }
-
-  for (size_t i = 0; i < src->size(); i++) {
-    try {
-      dst[i] = src->at(i)->toDouble();
-    } catch(const ValueNode::NotScalarException ex) {
-      MessageView::instance()->putln(
-        MessageView::ERROR, boost::format("%1% (%1%)") % ex.message() % pdc_parameter_filename_
-        );
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool BodyRosTankControllerItem::load_pdc_parameters()
-{
-  YAMLReader reader = YAMLReader();
-  ValueNode* vnode;
-  Mapping*   mapping;
-  Listing*   listing;
-  bool       result;
-
-  pgain.resize(body()->numJoints());
-  dgain.resize(body()->numJoints());
-  u_lower.resize(body()->numJoints());
-  u_upper.resize(body()->numJoints());
-
-  std::ostringstream os;
-  os << "load_pdc_parameters(): body()->numJoints()=" << body()->numJoints();
-  MessageView::instance()->putln(os.str());
-
-  if (pdc_parameter_filename_.empty()) {
-    MessageView::instance()->putln(MessageView::ERROR, boost::format("'PD control parameter file' is empty"));
-    return false;
-  } else if (! reader.load(pdc_parameter_filename_)) {
-    MessageView::instance()->putln(
-      MessageView::ERROR, 
-      boost::format("PD control parameter file load failed (%1%)") % pdc_parameter_filename_
-      );
-    return false;
-  } else if (reader.numDocuments() != 1) {
-    MessageView::instance()->putln(
-      MessageView::ERROR,
-      boost::format("invalid format found (%1%)") % pdc_parameter_filename_
-      );
-    return false;
-  }
-
-  vnode = reader.document(0);
-
-  if (! vnode) {
-    MessageView::instance()->putln(
-      MessageView::ERROR,
-      boost::format("file is empty (%1%)") % pdc_parameter_filename_
-      );
-    return false;
-  } else if (vnode->nodeType() != ValueNode::MAPPING) {
-    MessageView::instance()->putln(
-      MessageView::ERROR,
-      boost::format("invalid node type found (%1%)") % pdc_parameter_filename_
-      );
-    return false;
-  }
-
-  mapping = vnode->toMapping();
-
-  if (mapping->empty() || mapping->size() != 4) {
-    MessageView::instance()->putln(
-      MessageView::ERROR,
-      boost::format("mismatch of number of the parameters (%1%)") % pdc_parameter_filename_
-      );
-    return false;
-  }
-
-  for (Mapping::const_iterator it = mapping->begin(); it != mapping->end(); it++) {
-    if (it->second->nodeType() != ValueNode::LISTING) {
-      MessageView::instance()->putln(
-        MessageView::ERROR,
-        boost::format("invalid node type found (%1%)") % pdc_parameter_filename_
-        );
-      return false;
-    }
-
-    listing = it->second->toListing();
-
-    if (listing->size() != body()->numJoints()) {
-      MessageView::instance()->putln(
-        MessageView::ERROR,
-        boost::format("joint size mismatch (%1%: %2% joint: %3%)") % it->first % listing->size() % body()->numJoints()
-        );
-      return false;
-    }
-
-    if (it->first == "pgain") {
-      result = set_pdc_parameters(listing, pgain);
-    } else if (it->first == "dgain") {
-      result = set_pdc_parameters(listing, dgain);
-    } else if (it->first == "u_lower") {
-      result = set_pdc_parameters(listing, u_lower);
-    } else if (it->first == "u_upper") {
-      result = set_pdc_parameters(listing, u_upper);
-    } else {
-      MessageView::instance()->putln(
-        MessageView::ERROR,
-        boost::format("invalid key found %1%") % it->first
-        );
-      return false;
-    }
-
-    if (! result) {
-      return false;
-    }
-  }
-
-  return true;
-}
 
 void BodyRosTankControllerItem::receive_message(const geometry_msgs::Twist &twist)
 {
@@ -338,10 +240,10 @@ bool BodyRosTankControllerItem::control()
   controlTime_ = controllerTarget->currentTime();
 
   /* control cannon */
-  qref[2] = -cannon_yaw;
-  qref[3] = cannon_pitch;
+  qref[0] = -cannon_yaw;
+  qref[1] = cannon_pitch;
 
-  for (size_t i = 2; i < body()->numJoints(); i++) {
+  for (size_t i = 0; i < 2; i++) {
     pd_control(body()->joint(i), qref[i]);
   }
 

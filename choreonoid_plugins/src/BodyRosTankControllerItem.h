@@ -145,14 +145,6 @@ private:
 
     /**
      */
-    bool set_pdc_parameters(Listing* src, std::vector<double>& dst);
-
-    /**
-     */
-    bool load_pdc_parameters();
-
-    /**
-     */
     void pd_control(Link* joint, double q_ref);
 
 };
