@@ -160,7 +160,7 @@ links:
     jointAxis: Z
     jointRange: unlimited
     maxJointVelocity: 1000
-    jointId: 2
+    jointId: 3
   -
     name: BALLISTIC_Y
     parent: BALLISTIC_Z
@@ -169,7 +169,7 @@ links:
     jointAxis: Y
     jointRange: unlimited
     maxJointVelocity: 1000
-    jointId: 3
+    jointId: 4
   -
     name: CANNONBALL
     parent: BALLISTIC_Y
@@ -178,7 +178,7 @@ links:
     jointAxis: X
     jointRange: [0, 10]
     maxJointVelocity: 100
-    jointId: 4
+    jointId: 5
     centerOfMass: [ 0, 0, 0 ]
     mass: 3.0
     inertia: [
