@@ -67,6 +67,7 @@ public:
     void receive_cannon_pitch(const std_msgs::Float32 &pitch);
     void receive_cannon_yaw(const std_msgs::Float32 &yaw);
     void receive_light_onoff(const std_msgs::Bool &onoff);
+    void receive_fire(const std_msgs::Bool &fire);
 
     virtual double timeStep() const {
       return timeStep_;
@@ -99,6 +100,10 @@ protected:
     Link* crawlerL;
     Link* crawlerR;
 
+    Link* ballistic_z;
+    Link* ballistic_y;
+    Link* cannonball;
+    
     Vector3 lin_vel;
     Vector3 ang_vel;
 
@@ -107,6 +112,8 @@ protected:
 
     SpotLight* light;
 
+    bool cannon_fired;
+
     boost::shared_ptr<ros::NodeHandle> rosnode_;
     boost::shared_ptr<ros::AsyncSpinner> async_ros_spin_;
 
@@ -114,7 +121,8 @@ protected:
     ros::Subscriber cmd_cannon_pitch;
     ros::Subscriber cmd_cannon_yaw;
     ros::Subscriber cmd_light_onoff;
-
+    ros::Subscriber cmd_fire;
+    
     /*
       @brief Hook of simulation start.
       This method calling in BodyRosTestControllerItem::start.

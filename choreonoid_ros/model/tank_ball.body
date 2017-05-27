@@ -144,14 +144,41 @@ links:
                 specularColor: [ 0.6, 0.6, 1.0 ]
                 shininess: 0.6
   -
-    name: CANNONBALL
+    name: BALLISTIC_X
     parent: TURRET_P
+    translation: [ 0.3, 0, 0 ]
+    jointType: revolute
+    jointAxis: X
+    jointRange: unlimited
+    maxJointVelocity: 1000
+    jointId: 2
+  -
+    name: BALLISTIC_Z
+    parent: BALLISTIC_X
+    translation: [ 0, 0, 0 ]
+    jointType: revolute
+    jointAxis: Z
+    jointRange: unlimited
+    maxJointVelocity: 1000
+    jointId: 2
+  -
+    name: BALLISTIC_Y
+    parent: BALLISTIC_Z
+    translation: [ 0, 0, 0 ]
+    jointType: revolute
+    jointAxis: Y
+    jointRange: unlimited
+    maxJointVelocity: 1000
+    jointId: 3
+  -
+    name: CANNONBALL
+    parent: BALLISTIC_Y
     translation: [ 0, 0, 0 ]
     jointType: slide
     jointAxis: X
     jointRange: [0, 10]
     maxJointVelocity: 100
-    jointId: 2
+    jointId: 4
     centerOfMass: [ 0, 0, 0 ]
     mass: 3.0
     inertia: [

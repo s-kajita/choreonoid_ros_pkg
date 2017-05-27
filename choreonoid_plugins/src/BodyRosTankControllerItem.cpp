@@ -91,6 +91,11 @@ bool BodyRosTankControllerItem::start(Target* target)
   crawlerL = body()->link("TRACK_L");
   crawlerR = body()->link("TRACK_R");
 
+  ballistic_z = body()->link("BALLISTIC_Z");
+  ballistic_y = body()->link("BALLISTIC_Y");
+  
+  cannonball = body()->link("CANNONBALL");
+  
   light = body()->findDevice<SpotLight>("Light");
   if(!light){
     MessageView::instance()->putln(MessageView::ERROR, boost::format("Light was not found"));
@@ -116,7 +121,11 @@ bool BodyRosTankControllerItem::start(Target* target)
 					&BodyRosTankControllerItem::receive_cannon_yaw, this);
   cmd_light_onoff = rosnode_->subscribe("light_onoff", 1, 
 					&BodyRosTankControllerItem::receive_light_onoff, this);
+  cmd_fire = rosnode_->subscribe("fire", 1, 
+					&BodyRosTankControllerItem::receive_fire, this);
 
+  cannon_fired = false;
+  
   if (hook_of_start_at_after_creation_rosnode() == false) {
     return false;
   }
@@ -147,8 +156,8 @@ bool BodyRosTankControllerItem::hook_of_start()
     u_upper[j] = 0;
   }
 
-  pgain[0] = pgain[1] = 30000.0;
-  dgain[0] = dgain[1] = 5000.0;
+  pgain[0] = pgain[1] = 20000.0;
+  dgain[0] = dgain[1] = 4000.0;
   u_lower[0] = u_lower[1] = -50.0;
   u_upper[0] = u_upper[1] =  50.0;
   
@@ -235,6 +244,28 @@ void BodyRosTankControllerItem::receive_light_onoff(const std_msgs::Bool &onoff)
   return;
 }
 
+void BodyRosTankControllerItem::receive_fire(const std_msgs::Bool &fire)
+{
+  std::ostringstream os;
+  os << "(cannon) fire= " << fire.data;
+  MessageView::instance()->putln(os.str());
+
+  if(fire.data){
+    cannon_fired = true;
+    ballistic_z->q() = 0.0;
+    cannonball->dq() = 100.0;
+    cannonball->u()  = 0;
+  }
+  else {
+    cannon_fired = false;
+    ballistic_z->q() = 0.0;
+    ballistic_y->q() = 0.0;
+    cannonball->q()  = 0.0;
+  }
+  
+  return;
+}
+
 bool BodyRosTankControllerItem::control()
 {
   controlTime_ = controllerTarget->currentTime();
@@ -258,6 +289,12 @@ bool BodyRosTankControllerItem::control()
   lin_vel(0) = DecayRate*lin_vel(0);
   ang_vel(2) = DecayRate*ang_vel(2);
 
+  if(!cannon_fired){
+    ballistic_z->q()=0;
+    ballistic_y->q()=0;
+    cannonball->q() =0;
+  }
+  
   return true;
 }
 
