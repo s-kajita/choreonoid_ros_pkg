@@ -123,9 +123,6 @@ bool BodyRosItem::createSensors(BodyPtr body)
   rangeVisionSensors_ = body->devices<RangeCamera>().getSortedById();
   rangeSensors_ = body->devices<RangeSensor>().getSortedById();
 
-  visionSensors_ << body->devices();
-  rangeSensors_  << body->devices();
-
   force_sensor_publishers_.resize(forceSensors_.size());
   for (size_t i=0; i < forceSensors_.size(); ++i) {
     if (ForceSensor* sensor = forceSensors_[i]) {
