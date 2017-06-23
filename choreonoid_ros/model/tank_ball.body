@@ -126,6 +126,7 @@ links:
             width: 320
             height: 240
             frameRate: 30
+            id: 0
           -
             type: RangeSensor
             name: RangeSensor
@@ -133,6 +134,7 @@ links:
             scanStep:  0.5
             scanRate:  10
             maxDistance: 10
+            id: 0
           -
             type: Shape
             geometry:

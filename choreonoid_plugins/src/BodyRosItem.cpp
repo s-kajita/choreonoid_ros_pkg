@@ -120,10 +120,11 @@ bool BodyRosItem::start(Target* target)
 
 bool BodyRosItem::createSensors(BodyPtr body)
 {
-  forceSensors_ = body->devices<ForceSensor>().getSortedById();
-  gyroSensors_ = body->devices<RateGyroSensor>().getSortedById();
-  accelSensors_ = body->devices<AccelerationSensor>().getSortedById();
-  visionSensors_ = body->devices<Camera>().getSortedById(); 
+  forceSensors_  = body->devices<ForceSensor>().getSortedById();
+  gyroSensors_   = body->devices<RateGyroSensor>().getSortedById();
+  accelSensors_  = body->devices<AccelerationSensor>().getSortedById();
+  visionSensors_ = body->devices<Camera>().getSortedById();
+
   rangeVisionSensors_ = body->devices<RangeCamera>().getSortedById();
   rangeSensors_ = body->devices<RangeSensor>().getSortedById();
 
