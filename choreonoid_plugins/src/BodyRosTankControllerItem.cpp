@@ -101,9 +101,6 @@ bool BodyRosTankControllerItem::start(Target* target)
     MessageView::instance()->putln(MessageView::ERROR, boost::format("Light was not found"));
     return false;
   }
-  else {
-    MessageView::instance()->putln(MessageView::ERROR, boost::format("Found Light"));
-  }
   
   std::string name = body()->name();
   std::replace(name.begin(), name.end(), '-', '_');
@@ -156,10 +153,21 @@ bool BodyRosTankControllerItem::hook_of_start()
     u_upper[j] = 0;
   }
 
-  pgain[0] = pgain[1] = 20000.0;
-  dgain[0] = dgain[1] = 4000.0;
-  u_lower[0] = u_lower[1] = -50.0;
-  u_upper[0] = u_upper[1] =  50.0;
+  pgain[0] = 30000.0;
+  dgain[0] = 5000.0;
+  u_lower[0] = -20.0;
+  u_upper[0] =  20.0;
+
+  pgain[1] = 30000.0;
+  dgain[1] = 5000.0;
+  u_lower[1] = -20.0;
+  u_upper[1] =  20.0;
+  
+  // for stabile simulation of the cannonball dynamics
+  for(int j=2; j<jsize; j++){
+    dgain[j]= 10.0;
+  }
+
   
 #if 0
   if (! load_pdc_parameters()) {
@@ -274,7 +282,7 @@ bool BodyRosTankControllerItem::control()
   qref[0] = -cannon_yaw;
   qref[1] = cannon_pitch;
 
-  for (size_t i = 0; i < 2; i++) {
+  for (size_t i = 0; i < body()->numJoints(); i++) {
     pd_control(body()->joint(i), qref[i]);
   }
 

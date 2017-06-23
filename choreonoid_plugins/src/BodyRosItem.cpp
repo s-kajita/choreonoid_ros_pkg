@@ -75,6 +75,11 @@ bool BodyRosItem::start(Target* target)
     return false;
   }
 
+  std::ostringstream os;
+  os << "BodyRosItem::start()";
+  MessageView::instance()->putln(os.str());
+
+  
   controllerTarget = target;
   simulationBody = target->body();
   timeStep_ = target->worldTimeStep();
@@ -118,10 +123,15 @@ bool BodyRosItem::createSensors(BodyPtr body)
   forceSensors_ = body->devices<ForceSensor>().getSortedById();
   gyroSensors_ = body->devices<RateGyroSensor>().getSortedById();
   accelSensors_ = body->devices<AccelerationSensor>().getSortedById();
-  visionSensors_ = body->devices<Camera>().getSortedById();
+  visionSensors_ = body->devices<Camera>().getSortedById(); 
   rangeVisionSensors_ = body->devices<RangeCamera>().getSortedById();
   rangeSensors_ = body->devices<RangeSensor>().getSortedById();
 
+  std::ostringstream os;
+  os << "**** visionSensors_.size()=" << visionSensors_.size();
+  MessageView::instance()->putln(os.str());
+
+  
   force_sensor_publishers_.resize(forceSensors_.size());
   for (size_t i=0; i < forceSensors_.size(); ++i) {
     if (ForceSensor* sensor = forceSensors_[i]) {
